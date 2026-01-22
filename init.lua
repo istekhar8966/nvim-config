@@ -1,6 +1,3 @@
--- ==========================================
--- 1. CORE SETTINGS
--- ==========================================
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 vim.g.mouse = a
@@ -20,9 +17,6 @@ vim.opt.swapfile = false
 vim.opt.backup = false
 vim.opt.writebackup = false
 
--- ==========================================
--- 2. BOOTSTRAP lazy.nvim
--- ==========================================
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system({
@@ -34,11 +28,7 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- ==========================================
--- 3. PLUGINS (Cutting-Edge)
--- ==========================================
 require("lazy").setup({
-  -- Colorscheme
   {
     "ellisonleao/gruvbox.nvim",
     priority = 1000,
@@ -51,7 +41,6 @@ require("lazy").setup({
     end,
   },
 
-  -- Fuzzy Finder (Lua/C)
   {
     "ibhagwan/fzf-lua",
     dependencies = { "nvim-tree/nvim-web-devicons" },
@@ -65,7 +54,6 @@ require("lazy").setup({
     },
   },
 
-  -- Mason (LSP installer)
   {
     "williamboman/mason.nvim",
     cmd = "Mason",
@@ -73,7 +61,6 @@ require("lazy").setup({
     opts = { ui = { border = "single" } },
   },
 
-  -- Blink.cmp (Completion in C - FAST)
   {
     "saghen/blink.cmp",
     lazy = false,
@@ -120,9 +107,6 @@ require("lazy").setup({
   },
 })
 
--- ==========================================
--- 4. NATIVE LSP (Neovim 0.11+)
--- ==========================================
 vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)
     local opts = { buffer = args.buf, silent = true }
@@ -135,7 +119,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
   end,
 })
 
--- Rust
 vim.lsp.config('rust_analyzer', {
   cmd = { 'rust-analyzer' },
   root_markers = { 'Cargo.toml' },
@@ -147,13 +130,11 @@ vim.lsp.config('rust_analyzer', {
   },
 })
 
--- C/C++
 vim.lsp.config('clangd', {
   cmd = { 'clangd', '--background-index', '--clang-tidy' },
   root_markers = { 'compile_commands.json', '.git' },
 })
 
--- Auto-enable
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "rust", "c", "cpp" },
   callback = function()
@@ -168,17 +149,11 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
--- ==========================================
--- 5. NETRW
--- ==========================================
 vim.g.netrw_banner = 0
 vim.g.netrw_liststyle = 3
 vim.g.netrw_winsize = 25
 vim.keymap.set("n", "<leader>e", ":Lex<CR>", { silent = true })
 
--- ==========================================
--- 6. TERMINAL (Ctrl + /)
--- ==========================================
 local term_buf = nil
 local term_win = nil
 
@@ -199,42 +174,24 @@ local function toggle_terminal()
   end
 end
 
--- ==========================================
--- 8. CLIPBOARD (Separate System vs Internal)
--- ==========================================
--- System clipboard (leader y/p)
 vim.keymap.set({"n", "v"}, "<leader>y", '"+y', { desc = "Yank to system clipboard" })
 vim.keymap.set({"n", "v"}, "<leader>Y", '"+Y', { desc = "Yank line to system clipboard" })
 vim.keymap.set({"n", "v"}, "<leader>p", '"+p', { desc = "Paste from system clipboard" })
 vim.keymap.set({"n", "v"}, "<leader>P", '"+P', { desc = "Paste before from system clipboard" })
 
--- Internal clipboard (default y/p) - no remapping needed, works by default
--- This keeps 'y' and 'p' working only within Neovim
-
 vim.keymap.set("n", "<C-_>", toggle_terminal, { silent = true })
 vim.keymap.set("t", "<C-_>", toggle_terminal, { silent = true })
 vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", { silent = true })
 
-
--- ==========================================
--- UNDO HISTORY (Persistent + Visualization)
--- ==========================================
--- Enable persistent undo (survives nvim restarts)
 vim.opt.undofile = true
 vim.opt.undodir = vim.fn.stdpath("data") .. "/undo"
 vim.opt.undolevels = 10000
 vim.opt.undoreload = 10000
 
--- Create undo directory if it doesn't exist
 vim.fn.mkdir(vim.fn.stdpath("data") .. "/undo", "p")
 
--- Keybinds
 vim.keymap.set("n", "<leader>u", vim.cmd.UndotreeToggle, { desc = "Undo Tree" })
 
-
--- ==========================================
--- 7. PERFORMANCE
--- ==========================================
 vim.api.nvim_create_autocmd({ "BufEnter", "FocusGained", "InsertLeave" }, {
   callback = function() vim.opt.relativenumber = true end
 })
